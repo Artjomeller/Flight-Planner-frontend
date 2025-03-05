@@ -3,7 +3,7 @@ import FlightFilter from './components/FlightFilter';
 import FlightList from './components/FlightList';
 import SeatPreferences from './components/SeatPreferences';
 import SeatMap from './components/SeatMap';
-import { fetchAllFlights, fetchFilteredFlights, fetchFlightSeats} from './services/api';
+import { fetchAllFlights, fetchFilteredFlights, fetchFlightSeats } from './services/api';
 import './App.css';
 
 function App() {
@@ -77,49 +77,12 @@ function App() {
     // Rakenda filtrid eelistuste järgi
     let filteredSeats = [...availableSeats];
 
-    // Filtreeri vastavalt eelistustele
-    if (preferences.preferWindow) {
-      // Aknaäärsed kohad on A ja F veerud
-      const windowSeats = filteredSeats.filter(seat =>
-          seat.seatColumn === "A" || seat.seatColumn === "F"
-      );
-      console.log("Window seats available:", windowSeats.length);
-
-      if (windowSeats.length > 0) {
-        filteredSeats = windowSeats;
-      } else {
-        console.log("Not enough window seats, using all available seats");
-      }
-    }
-
-    if (preferences.preferExtraLegroom) {
-      const legroomSeats = filteredSeats.filter(seat => seat.hasExtraLegroom);
-      console.log("Extra legroom seats after filtering:", legroomSeats.length);
-
-      if (legroomSeats.length > 0) {
-        filteredSeats = legroomSeats;
-      } else {
-        console.log("Not enough legroom seats, keeping previous filter results");
-      }
-    }
-
-    if (preferences.preferEmergencyExit) {
-      const exitSeats = filteredSeats.filter(seat => seat.isEmergencyExit);
-      console.log("Emergency exit seats after filtering:", exitSeats.length);
-
-      if (exitSeats.length > 0) {
-        filteredSeats = exitSeats;
-      } else {
-        console.log("Not enough emergency exit seats, keeping previous filter results");
-      }
-    }
-
-    // Kui soovid kõrvuti istmeid
-    if (preferences.numberOfSeats > 1 && preferences.seatsNextToEachOther) {
-      console.log("Looking for adjacent seats");
+    // Kui soovid mitut istet kõrvuti JA akna äärde
+    if (preferences.numberOfSeats > 1 && preferences.seatsNextToEachOther && preferences.preferWindow) {
+      console.log("Looking for adjacent seats with at least one window seat");
 
       // Grupeeri istekohad rea järgi
-      const seatsByRow = filteredSeats.reduce((acc, seat) => {
+      const seatsByRow = availableSeats.reduce((acc, seat) => {
         if (!acc[seat.seatRow]) {
           acc[seat.seatRow] = [];
         }
@@ -127,9 +90,9 @@ function App() {
         return acc;
       }, {});
 
-      // Otsi kõiki võimalikke järjestikuseid istekohti
-      let allConsecutiveGroups = [];
+      let windowAdjacentGroups = [];
 
+      // Otsi iga rea kohta järjestikuseid istekohti, millest vähemalt üks on akna ääres
       Object.values(seatsByRow).forEach(rowSeats => {
         // Sorteeri istekohad veeru järgi
         rowSeats.sort((a, b) => a.seatColumn.localeCompare(b.seatColumn));
@@ -137,7 +100,9 @@ function App() {
         // Otsi järjestikuseid istmeid
         for (let i = 0; i <= rowSeats.length - preferences.numberOfSeats; i++) {
           let areConsecutive = true;
+          let hasWindowSeat = false;
 
+          // Kontrolli, kas kohad on järjestikused
           for (let j = 0; j < preferences.numberOfSeats - 1; j++) {
             const currentCol = rowSeats[i + j].seatColumn.charCodeAt(0);
             const nextCol = rowSeats[i + j + 1].seatColumn.charCodeAt(0);
@@ -148,26 +113,170 @@ function App() {
             }
           }
 
+          // Kontrolli, kas grupis on vähemalt üks aknaäärne iste (A või F)
           if (areConsecutive) {
-            allConsecutiveGroups.push(rowSeats.slice(i, i + preferences.numberOfSeats));
+            for (let j = 0; j < preferences.numberOfSeats; j++) {
+              const seat = rowSeats[i + j];
+              if (seat.seatColumn === "A" || seat.seatColumn === "F") {
+                hasWindowSeat = true;
+                break;
+              }
+            }
+
+            // Kui grupis on vähemalt üks aknaäärne koht
+            if (hasWindowSeat) {
+              windowAdjacentGroups.push(rowSeats.slice(i, i + preferences.numberOfSeats));
+            }
           }
         }
       });
 
-      // Kui leidsime vähemalt ühe sobiva järjestikuse istekohtade rühma
-      if (allConsecutiveGroups.length > 0) {
-        console.log("Found adjacent seat groups:", allConsecutiveGroups.length);
-
-        // Vali esimene järjestikuste istekohtade rühm
-        filteredSeats = allConsecutiveGroups[0];
+      // Kui leidsime aknaäärsed kõrvuti istekohad
+      if (windowAdjacentGroups.length > 0) {
+        console.log("Found window adjacent groups:", windowAdjacentGroups.length);
+        // Vali esimene sobiv grupp
+        filteredSeats = windowAdjacentGroups[0];
       } else {
-        console.log("No adjacent seats found that match criteria");
-        // Kui järjestikuseid istekohti ei leitud, siis võtame lihtsalt esimesed saadaolevad
+        console.log("No window adjacent seats found, falling back to regular filters");
+
+        // Kui aknaäärseid kõrvuti istekohti ei leitud, proovime tavalist filtreerimist
+        // Alguses filtreerime aknaäärsed
+        const windowSeats = availableSeats.filter(seat =>
+            seat.seatColumn === "A" || seat.seatColumn === "F"
+        );
+
+        // Seejärel proovime leida tavalisi kõrvuti istmeid
+        if (windowSeats.length > 0) {
+          filteredSeats = windowSeats;
+        }
+
+        // Proovi leida kõrvuti istmeid
+        const seatsByRow = filteredSeats.reduce((acc, seat) => {
+          if (!acc[seat.seatRow]) {
+            acc[seat.seatRow] = [];
+          }
+          acc[seat.seatRow].push(seat);
+          return acc;
+        }, {});
+
+        let allConsecutiveGroups = [];
+
+        Object.values(seatsByRow).forEach(rowSeats => {
+          rowSeats.sort((a, b) => a.seatColumn.localeCompare(b.seatColumn));
+
+          for (let i = 0; i <= rowSeats.length - preferences.numberOfSeats; i++) {
+            let areConsecutive = true;
+
+            for (let j = 0; j < preferences.numberOfSeats - 1; j++) {
+              const currentCol = rowSeats[i + j].seatColumn.charCodeAt(0);
+              const nextCol = rowSeats[i + j + 1].seatColumn.charCodeAt(0);
+
+              if (nextCol - currentCol !== 1) {
+                areConsecutive = false;
+                break;
+              }
+            }
+
+            if (areConsecutive) {
+              allConsecutiveGroups.push(rowSeats.slice(i, i + preferences.numberOfSeats));
+            }
+          }
+        });
+
+        if (allConsecutiveGroups.length > 0) {
+          filteredSeats = allConsecutiveGroups[0];
+        } else {
+          filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
+        }
+      }
+    }
+    // Muud eelistused käsitleme eraldi
+    else {
+      // Filtreeri vastavalt eelistustele
+      if (preferences.preferWindow) {
+        // Aknaäärsed kohad on A ja F veerud
+        const windowSeats = filteredSeats.filter(seat =>
+            seat.seatColumn === "A" || seat.seatColumn === "F"
+        );
+        console.log("Window seats available:", windowSeats.length);
+
+        if (windowSeats.length > 0) {
+          filteredSeats = windowSeats;
+        } else {
+          console.log("Not enough window seats, using all available seats");
+        }
+      }
+
+      if (preferences.preferExtraLegroom) {
+        const legroomSeats = filteredSeats.filter(seat => seat.hasExtraLegroom);
+        console.log("Extra legroom seats after filtering:", legroomSeats.length);
+
+        if (legroomSeats.length > 0) {
+          filteredSeats = legroomSeats;
+        } else {
+          console.log("Not enough legroom seats, keeping previous filter results");
+        }
+      }
+
+      if (preferences.preferEmergencyExit) {
+        const exitSeats = filteredSeats.filter(seat => seat.isEmergencyExit);
+        console.log("Emergency exit seats after filtering:", exitSeats.length);
+
+        if (exitSeats.length > 0) {
+          filteredSeats = exitSeats;
+        } else {
+          console.log("Not enough emergency exit seats, keeping previous filter results");
+        }
+      }
+
+      // Kui soovid kõrvuti istmeid (ilma aknakoha eelistuseta)
+      if (preferences.numberOfSeats > 1 && preferences.seatsNextToEachOther) {
+        console.log("Looking for adjacent seats");
+
+        // Grupeeri istekohad rea järgi
+        const seatsByRow = filteredSeats.reduce((acc, seat) => {
+          if (!acc[seat.seatRow]) {
+            acc[seat.seatRow] = [];
+          }
+          acc[seat.seatRow].push(seat);
+          return acc;
+        }, {});
+
+        let allConsecutiveGroups = [];
+
+        Object.values(seatsByRow).forEach(rowSeats => {
+          rowSeats.sort((a, b) => a.seatColumn.localeCompare(b.seatColumn));
+
+          for (let i = 0; i <= rowSeats.length - preferences.numberOfSeats; i++) {
+            let areConsecutive = true;
+
+            for (let j = 0; j < preferences.numberOfSeats - 1; j++) {
+              const currentCol = rowSeats[i + j].seatColumn.charCodeAt(0);
+              const nextCol = rowSeats[i + j + 1].seatColumn.charCodeAt(0);
+
+              if (nextCol - currentCol !== 1) {
+                areConsecutive = false;
+                break;
+              }
+            }
+
+            if (areConsecutive) {
+              allConsecutiveGroups.push(rowSeats.slice(i, i + preferences.numberOfSeats));
+            }
+          }
+        });
+
+        if (allConsecutiveGroups.length > 0) {
+          console.log("Found adjacent seat groups:", allConsecutiveGroups.length);
+          filteredSeats = allConsecutiveGroups[0];
+        } else {
+          console.log("No adjacent seats found that match criteria");
+          filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
+        }
+      } else {
+        // Kui ei ole vaja kõrvuti istmeid, siis lihtsalt piira soovitatud kohtade arvu
         filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
       }
-    } else {
-      // Kui ei ole vaja kõrvuti istmeid, siis lihtsalt piira soovitatud kohtade arvu
-      filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
     }
 
     console.log("Final recommended seats:", filteredSeats.length);
