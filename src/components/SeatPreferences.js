@@ -13,10 +13,19 @@ const SeatPreferences = ({ flightId, onPreferencesChange }) => {
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setPreferences({
+        const newValue = type === 'checkbox' ? checked : (type === 'number' ? parseInt(value, 10) : value);
+
+        const updatedPreferences = {
             ...preferences,
-            [name]: type === 'checkbox' ? checked : value
-        });
+            [name]: newValue
+        };
+
+        setPreferences(updatedPreferences);
+
+        // If we change number of seats and it's now 1, adjacent seats option doesn't apply
+        if (name === 'numberOfSeats' && newValue === 1) {
+            setPreferences(prev => ({...prev, seatsNextToEachOther: true}));
+        }
     };
 
     const handleSubmit = (e) => {
