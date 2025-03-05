@@ -42,13 +42,22 @@
 }
 
 .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
     margin-bottom: 1.5rem;
-    padding: 1rem;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.legend-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
 }
 
 .legend-item {
@@ -58,66 +67,71 @@
     color: #5a6268;
 }
 
-.seat-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    margin-right: 0.5rem;
+.legend-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid rgba(0,0,0,0.1);
+    position: relative;
 }
 
-.seat-icon.available {
+.legend-icon.available {
     background-color: #f8f9fa;
 }
 
-.seat-icon.occupied {
+.legend-icon.occupied {
     background-color: #e74c3c;
 }
 
-.seat-icon.recommended {
+.legend-icon.recommended {
     background-color: #2ecc71;
 }
 
-.seat-icon.selected {
+.legend-icon.selected {
     background-color: #3498db;
 }
 
-.seat-icon.window, .seat-icon.emergency-exit, .seat-icon.extra-legroom {
-    position: relative;
-    background-color: #f8f9fa;
-}
-
-.seat-icon.window::after {
+.legend-icon.window::after {
     content: '';
     position: absolute;
-    width: 4px;
-    height: 10px;
+    width: 6px;
+    height: 20px;
     background-color: #3498db;
-    left: 0;
+    left: -1px;
     top: 50%;
     transform: translateY(-50%);
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
 
-.seat-icon.emergency-exit::after {
+.legend-icon.emergency-exit::after {
     content: '';
     position: absolute;
-    width: 10px;
-    height: 4px;
+    width: 20px;
+    height: 6px;
     background-color: #e67e22;
     left: 50%;
-    top: 0;
+    top: -1px;
     transform: translateX(-50%);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
 
-.seat-icon.extra-legroom::after {
+.legend-icon.extra-legroom::after {
     content: '';
     position: absolute;
-    width: 10px;
-    height: 4px;
+    width: 20px;
+    height: 6px;
     background-color: #9b59b6;
     left: 50%;
-    bottom: 0;
+    bottom: -1px;
     transform: translateX(-50%);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .airplane {

@@ -111,33 +111,36 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
             </div>
 
             <div className="legend">
-                <div className="legend-item">
-                    <div className="seat-icon available"></div>
-                    <span>Available</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon occupied"></div>
-                    <span>Occupied</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon recommended"></div>
-                    <span>Recommended</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon selected"></div>
-                    <span>Selected</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon window"></div>
-                    <span>Window</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon emergency-exit"></div>
-                    <span>Emergency Exit</span>
-                </div>
-                <div className="legend-item">
-                    <div className="seat-icon extra-legroom"></div>
-                    <span>Extra Legroom</span>
+                <div className="legend-title">Seat Types</div>
+                <div className="legend-grid">
+                    <div className="legend-item">
+                        <div className="legend-icon available"></div>
+                        <span>Available</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon occupied"></div>
+                        <span>Occupied</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon recommended"></div>
+                        <span>Recommended</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon selected"></div>
+                        <span>Selected</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon window"></div>
+                        <span>Window Seat</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon emergency-exit"></div>
+                        <span>Emergency Exit</span>
+                    </div>
+                    <div className="legend-item">
+                        <div className="legend-icon extra-legroom"></div>
+                        <span>Extra Legroom</span>
+                    </div>
                 </div>
             </div>
 
