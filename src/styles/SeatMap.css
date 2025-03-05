@@ -5,11 +5,32 @@
     padding: 1.5rem;
 }
 
-.seat-map h2 {
-    color: #2c3e50;
-    margin-top: 0;
+.seat-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
+}
+
+.seat-map-header h2 {
+    margin: 0;
+    color: #2c3e50;
     font-weight: 600;
+}
+
+.regenerate-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.regenerate-button:hover {
+    background-color: #2980b9;
 }
 
 .seat-stats {
