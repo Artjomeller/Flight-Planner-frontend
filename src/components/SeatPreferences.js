@@ -27,10 +27,13 @@ const SeatPreferences = ({ flightId, onPreferencesChange }) => {
     return (
         <div className="seat-preferences">
             <h2>Seat Preferences</h2>
+            <p className="preference-intro">Select your preferences to get seat recommendations</p>
+
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Number of Seats:</label>
+                <div className="preference-group ticket-count">
+                    <label htmlFor="numberOfSeats">Number of Seats</label>
                     <input
+                        id="numberOfSeats"
                         type="number"
                         name="numberOfSeats"
                         min="1"
@@ -40,53 +43,67 @@ const SeatPreferences = ({ flightId, onPreferencesChange }) => {
                     />
                 </div>
 
-                {preferences.numberOfSeats > 1 && (
-                    <div className="form-group checkbox">
+                <div className="preferences-grid">
+                    <div className="preference-option">
                         <input
                             type="checkbox"
-                            name="seatsNextToEachOther"
-                            checked={preferences.seatsNextToEachOther}
+                            id="preferWindow"
+                            name="preferWindow"
+                            checked={preferences.preferWindow}
                             onChange={handleInputChange}
-                            id="seatsNextToEachOther"
                         />
-                        <label htmlFor="seatsNextToEachOther">Seats Next to Each Other</label>
+                        <label htmlFor="preferWindow">
+                            <div className="option-icon window-icon"></div>
+                            <div className="option-label">Window Seat</div>
+                        </label>
                     </div>
-                )}
 
-                <div className="form-group checkbox">
-                    <input
-                        type="checkbox"
-                        name="preferWindow"
-                        checked={preferences.preferWindow}
-                        onChange={handleInputChange}
-                        id="preferWindow"
-                    />
-                    <label htmlFor="preferWindow">Window Seat</label>
+                    <div className="preference-option">
+                        <input
+                            type="checkbox"
+                            id="preferExtraLegroom"
+                            name="preferExtraLegroom"
+                            checked={preferences.preferExtraLegroom}
+                            onChange={handleInputChange}
+                        />
+                        <label htmlFor="preferExtraLegroom">
+                            <div className="option-icon legroom-icon"></div>
+                            <div className="option-label">Extra Legroom</div>
+                        </label>
+                    </div>
+
+                    <div className="preference-option">
+                        <input
+                            type="checkbox"
+                            id="preferEmergencyExit"
+                            name="preferEmergencyExit"
+                            checked={preferences.preferEmergencyExit}
+                            onChange={handleInputChange}
+                        />
+                        <label htmlFor="preferEmergencyExit">
+                            <div className="option-icon exit-icon"></div>
+                            <div className="option-label">Near Emergency Exit</div>
+                        </label>
+                    </div>
+
+                    {preferences.numberOfSeats > 1 && (
+                        <div className="preference-option">
+                            <input
+                                type="checkbox"
+                                id="seatsNextToEachOther"
+                                name="seatsNextToEachOther"
+                                checked={preferences.seatsNextToEachOther}
+                                onChange={handleInputChange}
+                            />
+                            <label htmlFor="seatsNextToEachOther">
+                                <div className="option-icon adjacent-icon"></div>
+                                <div className="option-label">Seats Next to Each Other</div>
+                            </label>
+                        </div>
+                    )}
                 </div>
 
-                <div className="form-group checkbox">
-                    <input
-                        type="checkbox"
-                        name="preferExtraLegroom"
-                        checked={preferences.preferExtraLegroom}
-                        onChange={handleInputChange}
-                        id="preferExtraLegroom"
-                    />
-                    <label htmlFor="preferExtraLegroom">Extra Legroom</label>
-                </div>
-
-                <div className="form-group checkbox">
-                    <input
-                        type="checkbox"
-                        name="preferEmergencyExit"
-                        checked={preferences.preferEmergencyExit}
-                        onChange={handleInputChange}
-                        id="preferEmergencyExit"
-                    />
-                    <label htmlFor="preferEmergencyExit">Near Emergency Exit</label>
-                </div>
-
-                <button type="submit" className="preference-button">Find Recommended Seats</button>
+                <button type="submit" className="recommend-button">Find Recommended Seats</button>
             </form>
         </div>
     );
