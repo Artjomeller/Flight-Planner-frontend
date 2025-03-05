@@ -23,58 +23,87 @@ const FlightFilter = ({ onFilterChange }) => {
         onFilterChange(filters);
     };
 
+    const clearFilters = () => {
+        setFilters({
+            destination: '',
+            date: '',
+            departureTimeFrom: '',
+            departureTimeTo: '',
+            maxPrice: ''
+        });
+    };
+
     return (
         <div className="flight-filter">
-            <h2>Filter Flights</h2>
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Destination:</label>
-                    <input
-                        type="text"
-                        name="destination"
-                        value={filters.destination}
-                        onChange={handleInputChange}
-                        placeholder="Where to?"
-                    />
+                <div className="filter-grid">
+                    <div className="filter-item">
+                        <label htmlFor="destination">Destination</label>
+                        <input
+                            id="destination"
+                            type="text"
+                            name="destination"
+                            value={filters.destination}
+                            onChange={handleInputChange}
+                            placeholder="Where to?"
+                        />
+                    </div>
+
+                    <div className="filter-item">
+                        <label htmlFor="date">Date</label>
+                        <input
+                            id="date"
+                            type="date"
+                            name="date"
+                            value={filters.date}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="filter-item">
+                        <label htmlFor="departureTimeFrom">Departure From</label>
+                        <input
+                            id="departureTimeFrom"
+                            type="time"
+                            name="departureTimeFrom"
+                            value={filters.departureTimeFrom}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="filter-item">
+                        <label htmlFor="departureTimeTo">Departure To</label>
+                        <input
+                            id="departureTimeTo"
+                            type="time"
+                            name="departureTimeTo"
+                            value={filters.departureTimeTo}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="filter-item">
+                        <label htmlFor="maxPrice">Max Price (€)</label>
+                        <input
+                            id="maxPrice"
+                            type="number"
+                            name="maxPrice"
+                            min="0"
+                            value={filters.maxPrice}
+                            onChange={handleInputChange}
+                            placeholder="e.g. 200"
+                        />
+                    </div>
+
+                    <div className="filter-actions">
+                        <button type="button" className="clear-button" onClick={clearFilters}>
+                            Clear
+                        </button>
+                        <button type="submit" className="filter-button">
+                            Apply Filters
+                        </button>
+                    </div>
                 </div>
-                <div className="form-group">
-                    <label>Date:</label>
-                    <input
-                        type="date"
-                        name="date"
-                        value={filters.date}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Departure time from:</label>
-                    <input
-                        type="time"
-                        name="departureTimeFrom"
-                        value={filters.departureTimeFrom}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Departure time to:</label>
-                    <input
-                        type="time"
-                        name="departureTimeTo"
-                        value={filters.departureTimeTo}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Max price:</label>
-                    <input
-                        type="number"
-                        name="maxPrice"
-                        value={filters.maxPrice}
-                        onChange={handleInputChange}
-                        placeholder="Maximum price"
-                    />
-                </div>
-                <button type="submit" className="filter-button">Apply Filters</button>
             </form>
         </div>
     );
