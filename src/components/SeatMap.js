@@ -10,7 +10,7 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
     }, {});
 
     // Sort rows
-    const sortedRows = Object.keys(seatsByRow).sort();
+    const sortedRows = Object.keys(seatsByRow).sort((a, b) => parseInt(a) - parseInt(b));
 
     // Check if a seat is recommended
     const isRecommended = (seat) => {
@@ -36,18 +36,79 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
             } else if (isRecommended(seat)) {
                 classes.push('recommended');
             }
-
-            if (seat.isWindow) classes.push('window');
-            if (seat.isEmergencyExit) classes.push('emergency-exit');
-            if (seat.hasExtraLegroom) classes.push('extra-legroom');
         }
 
+        if (seat.isWindow) classes.push('window');
+        if (seat.isEmergencyExit) classes.push('emergency-exit');
+        if (seat.hasExtraLegroom) classes.push('extra-legroom');
+
         return classes.join(' ');
+    };
+
+    // Count different seat types
+    const seatCounts = seats.reduce((acc, seat) => {
+        if (seat.isOccupied) {
+            acc.occupied++;
+        } else {
+            acc.available++;
+            if (seat.isWindow) acc.window++;
+            if (seat.isEmergencyExit) acc.emergencyExit++;
+            if (seat.hasExtraLegroom) acc.extraLegroom++;
+        }
+        return acc;
+    }, {
+        total: seats.length,
+        available: 0,
+        occupied: 0,
+        window: 0,
+        emergencyExit: 0,
+        extraLegroom: 0,
+        recommended: recommendedSeats.length,
+        selected: selectedSeats.length
+    });
+
+    // Get tooltip text for a seat
+    const getSeatTooltip = (seat) => {
+        const status = seat.isOccupied ? 'Occupied' : 'Available';
+        const features = [];
+
+        if (seat.isWindow) features.push('Window');
+        if (seat.isEmergencyExit) features.push('Emergency Exit');
+        if (seat.hasExtraLegroom) features.push('Extra Legroom');
+
+        return `Seat ${seat.seatNumber}: ${status}${features.length > 0 ? ' (' + features.join(', ') + ')' : ''}`;
     };
 
     return (
         <div className="seat-map">
             <h2>Seat Map</h2>
+
+            <div className="seat-stats">
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.total}</span>
+                    <span className="stat-label">Total Seats</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.available}</span>
+                    <span className="stat-label">Available</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.occupied}</span>
+                    <span className="stat-label">Occupied</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.window}</span>
+                    <span className="stat-label">Window Seats</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.extraLegroom}</span>
+                    <span className="stat-label">Extra Legroom</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{seatCounts.emergencyExit}</span>
+                    <span className="stat-label">Near Exit</span>
+                </div>
+            </div>
 
             <div className="legend">
                 <div className="legend-item">
@@ -94,9 +155,12 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
                                         key={seat.id}
                                         className={getSeatClass(seat)}
                                         onClick={() => !seat.isOccupied && onSeatClick(seat)}
-                                        title={`${seat.seatNumber} ${seat.isOccupied ? '(Occupied)' : '(Available)'}`}
+                                        title={getSeatTooltip(seat)}
                                     >
                                         {seat.seatColumn}
+                                        {seat.isWindow && <span className="seat-feature window-feature"></span>}
+                                        {seat.hasExtraLegroom && <span className="seat-feature legroom-feature"></span>}
+                                        {seat.isEmergencyExit && <span className="seat-feature exit-feature"></span>}
                                     </div>
                                 ))}
                         </div>
