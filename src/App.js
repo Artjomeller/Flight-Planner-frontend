@@ -82,6 +82,22 @@ function App() {
     }
   };
 
+  // Function to regenerate seats
+  const handleRegenerateSeats = async () => {
+    if (selectedFlight) {
+      try {
+        // In a real app, you would call a specific API endpoint to regenerate seats
+        // For now, we'll just re-fetch the seats, which will get randomly generated ones from backend
+        const data = await fetchFlightSeats(selectedFlight.id);
+        setSeats(data);
+        setRecommendedSeats([]);
+        setSelectedSeats([]);
+      } catch (error) {
+        console.error('Failed to regenerate seats');
+      }
+    }
+  };
+
   return (
       <div className="App">
         <header className="App-header">
@@ -153,6 +169,7 @@ function App() {
                             selectedSeats={selectedSeats}
                             recommendedSeats={recommendedSeats}
                             onSeatClick={handleSeatClick}
+                            onRegenerateSeats={handleRegenerateSeats}
                         />
                     )}
                   </div>
