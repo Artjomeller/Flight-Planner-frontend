@@ -1,10 +1,44 @@
 .seat-map {
-    margin-top: 2rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
 }
 
 .seat-map h2 {
-    margin-bottom: 1rem;
     color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.seat-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    margin-top: 0.25rem;
 }
 
 .legend {
@@ -12,12 +46,16 @@
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     font-size: 0.875rem;
+    color: #5a6268;
 }
 
 .seat-icon {
@@ -25,10 +63,11 @@
     height: 20px;
     border-radius: 4px;
     margin-right: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.1);
 }
 
 .seat-icon.available {
-    background-color: #d1d1d1;
+    background-color: #f8f9fa;
 }
 
 .seat-icon.occupied {
@@ -43,32 +82,53 @@
     background-color: #3498db;
 }
 
-.seat-icon.window {
-    border: 2px solid #3498db;
-    width: 16px;
-    height: 16px;
+.seat-icon.window, .seat-icon.emergency-exit, .seat-icon.extra-legroom {
+    position: relative;
+    background-color: #f8f9fa;
 }
 
-.seat-icon.emergency-exit {
-    border: 2px solid #e67e22;
-    width: 16px;
-    height: 16px;
+.seat-icon.window::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 10px;
+    background-color: #3498db;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.seat-icon.extra-legroom {
-    border: 2px solid #9b59b6;
-    width: 16px;
-    height: 16px;
+.seat-icon.emergency-exit::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 4px;
+    background-color: #e67e22;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.seat-icon.extra-legroom::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 4px;
+    background-color: #9b59b6;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
 }
 
 .airplane {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 1rem;
 }
 
 .fuselage {
-    width: 100%;
+    width: 80%;
     height: 20px;
     background-color: #95a5a6;
     border-radius: 50% 50% 0 0;
@@ -85,11 +145,14 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    max-width: 600px;
 }
 
 .seat-row {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .row-number {
@@ -97,11 +160,12 @@
     text-align: center;
     font-weight: bold;
     color: #7f8c8d;
+    margin-right: 0.5rem;
 }
 
 .seat {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -110,10 +174,18 @@
     cursor: pointer;
     font-weight: bold;
     color: #2c3e50;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.seat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .seat.available {
-    background-color: #d1d1d1;
+    background-color: #f8f9fa;
 }
 
 .seat.occupied {
@@ -132,14 +204,45 @@
     color: white;
 }
 
-.seat.window {
-    border: 2px solid #3498db;
+.seat-feature {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
 
-.seat.emergency-exit {
-    border: 2px solid #e67e22;
+.window-feature {
+    background-color: #3498db;
+    left: 2px;
 }
 
-.seat.extra-legroom {
-    border: 2px solid #9b59b6;
+.legroom-feature {
+    background-color: #9b59b6;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.exit-feature {
+    background-color: #e67e22;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .seats {
+        max-width: 100%;
+    }
+
+    .seat {
+        width: 35px;
+        height: 35px;
+        font-size: 0.85rem;
+    }
+
+    .seat-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
