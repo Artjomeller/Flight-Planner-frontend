@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/SeatMap.css';
 
-const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
+const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick, onRegenerateSeats }) => {
     // Group seats by row
     const seatsByRow = seats.reduce((acc, seat) => {
         if (!acc[seat.seatRow]) acc[seat.seatRow] = [];
@@ -81,7 +81,14 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick }) => {
 
     return (
         <div className="seat-map">
-            <h2>Seat Map</h2>
+            <div className="seat-map-header">
+                <h2>Seat Map</h2>
+                {onRegenerateSeats && (
+                    <button className="regenerate-button" onClick={onRegenerateSeats}>
+                        Regenerate Seats
+                    </button>
+                )}
+            </div>
 
             <div className="seat-stats">
                 <div className="stat-item">
