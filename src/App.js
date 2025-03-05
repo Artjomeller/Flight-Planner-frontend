@@ -3,7 +3,7 @@ import FlightFilter from './components/FlightFilter';
 import FlightList from './components/FlightList';
 import SeatPreferences from './components/SeatPreferences';
 import SeatMap from './components/SeatMap';
-import { fetchAllFlights, fetchFilteredFlights, fetchFlightSeats, fetchSeatRecommendations } from './services/api';
+import { fetchAllFlights, fetchFilteredFlights, fetchFlightSeats} from './services/api';
 import './App.css';
 
 function App() {
@@ -42,12 +42,24 @@ function App() {
     }
   };
 
+  // Function to randomly mark seats as occupied
+  const generateRandomlyOccupiedSeats = (seats) => {
+    return seats.map(seat => ({
+      ...seat,
+      isOccupied: Math.random() < 0.3 // ~30% of seats will be occupied
+    }));
+  };
+
   // Handle flight selection
   const handleFlightSelect = async (flight) => {
     setSelectedFlight(flight);
     try {
       const data = await fetchFlightSeats(flight.id);
-      setSeats(data);
+
+      // Generate randomly occupied seats
+      const randomlyOccupiedSeats = generateRandomlyOccupiedSeats(data);
+
+      setSeats(randomlyOccupiedSeats);
       setRecommendedSeats([]);
       setSelectedSeats([]);
     } catch (error) {
@@ -56,13 +68,101 @@ function App() {
   };
 
   // Handle seat preferences change
-  const handlePreferencesChange = async (preferences) => {
-    try {
-      const data = await fetchSeatRecommendations(preferences);
-      setRecommendedSeats(data);
-    } catch (error) {
-      console.error('Failed to fetch seat recommendations');
+  const handlePreferencesChange = (preferences) => {
+    // Filter available seats (not occupied)
+    const availableSeats = seats.filter(seat => !seat.isOccupied);
+
+    console.log("Available seats:", availableSeats.length); // Debugging
+
+    // Rakenda filtrid eelistuste järgi
+    let filteredSeats = [...availableSeats];
+
+    // Rakenda aknakoha eelistust, kui see on valitud
+    if (preferences.preferWindow) {
+      filteredSeats = filteredSeats.filter(seat => seat.isWindow);
+      console.log("After window filter:", filteredSeats.length); // Debugging
     }
+
+    // Rakenda lisajalaruumi eelistust, kui see on valitud
+    if (preferences.preferExtraLegroom) {
+      filteredSeats = filteredSeats.filter(seat => seat.hasExtraLegroom);
+      console.log("After legroom filter:", filteredSeats.length); // Debugging
+    }
+
+    // Rakenda väljapääsu läheduse eelistust, kui see on valitud
+    if (preferences.preferEmergencyExit) {
+      filteredSeats = filteredSeats.filter(seat => seat.isEmergencyExit);
+      console.log("After emergency exit filter:", filteredSeats.length); // Debugging
+    }
+
+    // Kui pärast filtreerimist pole istekohti alles jäänud, kasuta kõiki vabasid istekohti
+    if (filteredSeats.length === 0) {
+      console.log("No seats match all criteria, using all available seats");
+      filteredSeats = [...availableSeats];
+    }
+
+    // Kui on vaja mitut istet ja need peavad olema kõrvuti
+    if (preferences.numberOfSeats > 1 && preferences.seatsNextToEachOther) {
+      // Grupeeri istekohad rea järgi
+      const seatsByRow = {};
+      filteredSeats.forEach(seat => {
+        if (!seatsByRow[seat.seatRow]) {
+          seatsByRow[seat.seatRow] = [];
+        }
+        seatsByRow[seat.seatRow].push(seat);
+      });
+
+      let consecutiveSeats = [];
+
+      // Otsi kõrvuti asetsevaid istekohti igas reas
+      Object.values(seatsByRow).forEach(rowSeats => {
+        // Kui on juba leitud piisavalt kõrvuti istekohti, siis jäta vahele
+        if (consecutiveSeats.length >= preferences.numberOfSeats) {
+          return;
+        }
+
+        // Sorteeri istekohad veeru järgi
+        rowSeats.sort((a, b) => a.seatColumn.localeCompare(b.seatColumn));
+
+        // Otsi järjestikuseid istmeid
+        for (let i = 0; i <= rowSeats.length - preferences.numberOfSeats; i++) {
+          let areConsecutive = true;
+
+          for (let j = 0; j < preferences.numberOfSeats - 1; j++) {
+            const currentCol = rowSeats[i + j].seatColumn.charCodeAt(0);
+            const nextCol = rowSeats[i + j + 1].seatColumn.charCodeAt(0);
+
+            if (nextCol - currentCol !== 1) {
+              areConsecutive = false;
+              break;
+            }
+          }
+
+          if (areConsecutive) {
+            consecutiveSeats = rowSeats.slice(i, i + preferences.numberOfSeats);
+            break;
+          }
+        }
+      });
+
+      // Kui leidsime sobivad kõrvuti istuvad istekohad
+      if (consecutiveSeats.length === preferences.numberOfSeats) {
+        filteredSeats = consecutiveSeats;
+        console.log("Found adjacent seats:", consecutiveSeats.length);
+      } else {
+        console.log("Could not find enough adjacent seats, using individual seats");
+        // Kui kõrvuti istuvaid kohti ei leitud, võta lihtsalt vajalik arv kohti
+        filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
+      }
+    } else {
+      // Kui kõrvuti istuvaid kohti pole vaja, võta lihtsalt vajalik arv kohti
+      filteredSeats = filteredSeats.slice(0, preferences.numberOfSeats);
+    }
+
+    console.log("Final recommended seats:", filteredSeats.length); // Debugging
+    console.log("Recommended seat IDs:", filteredSeats.map(s => s.id)); // Debugging
+
+    setRecommendedSeats(filteredSeats);
   };
 
   // Handle seat selection
@@ -86,10 +186,12 @@ function App() {
   const handleRegenerateSeats = async () => {
     if (selectedFlight) {
       try {
-        // In a real app, you would call a specific API endpoint to regenerate seats
-        // For now, we'll just re-fetch the seats, which will get randomly generated ones from backend
         const data = await fetchFlightSeats(selectedFlight.id);
-        setSeats(data);
+
+        // Generate new randomly occupied seats
+        const randomlyOccupiedSeats = generateRandomlyOccupiedSeats(data);
+
+        setSeats(randomlyOccupiedSeats);
         setRecommendedSeats([]);
         setSelectedSeats([]);
       } catch (error) {
