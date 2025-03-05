@@ -1,0 +1,53 @@
+.seat-preferences {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.seat-preferences h2 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.form-group.checkbox label {
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+}
+
+.form-group input[type="number"] {
+    width: 5rem;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.preference-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+}
+
+.preference-button:hover {
+    background-color: #2980b9;
+}
