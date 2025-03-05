@@ -14,6 +14,10 @@ const SeatMap = ({ seats, selectedSeats, recommendedSeats, onSeatClick, onRegene
 
     // Check if a seat is recommended
     const isRecommended = (seat) => {
+        // Debug log
+        if (recommendedSeats.length > 0 && seat.id === recommendedSeats[0].id) {
+            console.log("Checking if seat is recommended:", seat.id, recommendedSeats.some(recSeat => recSeat.id === seat.id));
+        }
         return recommendedSeats.some(recSeat => recSeat.id === seat.id);
     };
 
