@@ -12,6 +12,7 @@ function App() {
   const [seats, setSeats] = useState([]);
   const [recommendedSeats, setRecommendedSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch all flights when component mounts
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
       setSeats([]);
       setRecommendedSeats([]);
       setSelectedSeats([]);
+      setShowFilters(false);
     } catch (error) {
       console.error('Failed to fetch filtered flights');
     }
@@ -87,51 +89,74 @@ function App() {
         </header>
 
         <div className="container">
-          <div className="flight-section">
-            <FlightFilter onFilterChange={handleFilterChange} />
-            <FlightList flights={flights} onSelectFlight={handleFlightSelect} />
-          </div>
-
-          {selectedFlight && (
-              <div className="seat-section">
-                <div className="selected-flight-info">
-                  <h2>Selected Flight</h2>
-                  <p>
-                    <strong>{selectedFlight.flightNumber}</strong>: {selectedFlight.origin} to {selectedFlight.destination}
-                  </p>
-                  <p>
-                    Departure: {new Date(selectedFlight.departureTime).toLocaleString()}
-                  </p>
-                  <p>
-                    Price: €{selectedFlight.price.toFixed(2)}
-                  </p>
+          {!selectedFlight ? (
+              <div className="flights-container">
+                <div className="flight-header">
+                  <h2>Available Flights</h2>
+                  <button
+                      className="toggle-filter-button"
+                      onClick={() => setShowFilters(!showFilters)}
+                  >
+                    {showFilters ? 'Hide Filters' : 'Show Filters'}
+                  </button>
                 </div>
 
-                <SeatPreferences
-                    flightId={selectedFlight.id}
-                    onPreferencesChange={handlePreferencesChange}
-                />
-
-                {seats.length > 0 && (
-                    <SeatMap
-                        seats={seats}
-                        selectedSeats={selectedSeats}
-                        recommendedSeats={recommendedSeats}
-                        onSeatClick={handleSeatClick}
-                    />
-                )}
-
-                {selectedSeats.length > 0 && (
-                    <div className="selected-seats-info">
-                      <h3>Selected Seats</h3>
-                      <ul>
-                        {selectedSeats.map(seat => (
-                            <li key={seat.id}>{seat.seatNumber}</li>
-                        ))}
-                      </ul>
-                      <button className="book-button">Book Tickets</button>
+                {showFilters && <FlightFilter onFilterChange={handleFilterChange} />}
+                <FlightList flights={flights} onSelectFlight={handleFlightSelect} />
+              </div>
+          ) : (
+              <div className="booking-container">
+                <div className="booking-header">
+                  <button className="back-button" onClick={() => setSelectedFlight(null)}>
+                    &larr; Back to Flights
+                  </button>
+                  <div className="selected-flight-info">
+                    <h2>{selectedFlight.origin} to {selectedFlight.destination}</h2>
+                    <div className="flight-details">
+                      <span><strong>Flight:</strong> {selectedFlight.flightNumber}</span>
+                      <span><strong>Airline:</strong> {selectedFlight.airline}</span>
+                      <span><strong>Departure:</strong> {new Date(selectedFlight.departureTime).toLocaleString()}</span>
+                      <span><strong>Price:</strong> €{selectedFlight.price.toFixed(2)}</span>
                     </div>
-                )}
+                  </div>
+                </div>
+
+                <div className="booking-content">
+                  <div className="seat-preferences-container">
+                    <SeatPreferences
+                        flightId={selectedFlight.id}
+                        onPreferencesChange={handlePreferencesChange}
+                    />
+
+                    {selectedSeats.length > 0 && (
+                        <div className="selected-seats-info">
+                          <h3>Selected Seats</h3>
+                          <div className="selected-seats-list">
+                            {selectedSeats.map(seat => (
+                                <div key={seat.id} className="selected-seat-item">
+                                  {seat.seatNumber}
+                                  {seat.isWindow && <span className="seat-tag window-tag">Window</span>}
+                                  {seat.hasExtraLegroom && <span className="seat-tag legroom-tag">Extra Legroom</span>}
+                                  {seat.isEmergencyExit && <span className="seat-tag exit-tag">Emergency Exit</span>}
+                                </div>
+                            ))}
+                          </div>
+                          <button className="book-button">Book Tickets</button>
+                        </div>
+                    )}
+                  </div>
+
+                  <div className="seat-map-container">
+                    {seats.length > 0 && (
+                        <SeatMap
+                            seats={seats}
+                            selectedSeats={selectedSeats}
+                            recommendedSeats={recommendedSeats}
+                            onSeatClick={handleSeatClick}
+                        />
+                    )}
+                  </div>
+                </div>
               </div>
           )}
         </div>
