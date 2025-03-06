@@ -330,7 +330,7 @@ function App() {
           {!selectedFlight ? (
               <div className="flights-container">
                 <div className="flight-header">
-                  <h2>Available Flights</h2>
+                  <h2>Search Flights</h2>
                   <button
                       className="toggle-filter-button"
                       onClick={() => setShowFilters(!showFilters)}

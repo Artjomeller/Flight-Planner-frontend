@@ -3,6 +3,7 @@ import '../styles/FlightFilter.css';
 
 const FlightFilter = ({ onFilterChange, availableFlights }) => {
     const [filters, setFilters] = useState({
+        origin: '',
         destination: '',
         date: '',
         departureTimeFrom: '',
@@ -10,19 +11,26 @@ const FlightFilter = ({ onFilterChange, availableFlights }) => {
         maxPrice: ''
     });
 
+    const [showOriginDropdown, setShowOriginDropdown] = useState(false);
     const [showDestinationDropdown, setShowDestinationDropdown] = useState(false);
     const [showTimeFromDropdown, setShowTimeFromDropdown] = useState(false);
     const [showTimeToDropdown, setShowTimeToDropdown] = useState(false);
     const [showDateOptions, setShowDateOptions] = useState(false);
 
-    // Populaarsed sihtkohad (neid saaks pärida ka API kaudu)
-    const popularDestinations = [
+    // Populaarsed linnad (neid saaks pärida ka API kaudu)
+    const popularCities = [
         'Tallinn', 'Helsinki', 'Stockholm', 'Copenhagen',
-        'London', 'Paris', 'Berlin', 'Rome', 'Barcelona'
+        'London', 'Paris', 'Berlin', 'Rome', 'Barcelona',
+        'Madrid', 'Vienna', 'Prague', 'Amsterdam', 'Brussels'
     ];
 
+    // Filtereeritud linnad kasutaja sisestuse põhjal
+    const filteredOrigins = popularCities.filter(
+        city => city.toLowerCase().includes(filters.origin.toLowerCase())
+    );
+
     // Filtereeritud sihtkohad kasutaja sisestuse põhjal
-    const filteredDestinations = popularDestinations.filter(
+    const filteredDestinations = popularCities.filter(
         dest => dest.toLowerCase().includes(filters.destination.toLowerCase())
     );
 
@@ -66,6 +74,7 @@ const FlightFilter = ({ onFilterChange, availableFlights }) => {
 
     const clearFilters = () => {
         setFilters({
+            origin: '',
             destination: '',
             date: '',
             departureTimeFrom: '',
@@ -74,10 +83,19 @@ const FlightFilter = ({ onFilterChange, availableFlights }) => {
         });
 
         // Sulge kõik dropdownid
+        setShowOriginDropdown(false);
         setShowDestinationDropdown(false);
         setShowTimeFromDropdown(false);
         setShowTimeToDropdown(false);
         setShowDateOptions(false);
+    };
+
+    const selectOrigin = (origin) => {
+        setFilters({
+            ...filters,
+            origin
+        });
+        setShowOriginDropdown(false);
     };
 
     const selectDestination = (destination) => {
@@ -109,6 +127,7 @@ const FlightFilter = ({ onFilterChange, availableFlights }) => {
     // Sulgeme dropdown kui kasutaja klikib mujale
     useEffect(() => {
         const handleOutsideClick = () => {
+            setShowOriginDropdown(false);
             setShowDestinationDropdown(false);
             setShowTimeFromDropdown(false);
             setShowTimeToDropdown(false);
@@ -129,6 +148,38 @@ const FlightFilter = ({ onFilterChange, availableFlights }) => {
         <div className="flight-filter">
             <form onSubmit={handleSubmit}>
                 <div className="filter-grid">
+                    <div className="filter-item">
+                        <label htmlFor="origin">Departure City</label>
+                        <div className="dropdown-container">
+                            <input
+                                id="origin"
+                                type="text"
+                                name="origin"
+                                value={filters.origin}
+                                onChange={handleInputChange}
+                                placeholder="Where from?"
+                                onClick={(e) => handleDropdownClick(e, setShowOriginDropdown)}
+                            />
+                            {showOriginDropdown && (
+                                <div className="dropdown-menu">
+                                    {filteredOrigins.length > 0 ? (
+                                        filteredOrigins.map(city => (
+                                            <div
+                                                key={city}
+                                                className="dropdown-item"
+                                                onClick={() => selectOrigin(city)}
+                                            >
+                                                {city}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="dropdown-item no-results">No cities found</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="filter-item">
                         <label htmlFor="destination">Destination</label>
                         <div className="dropdown-container">

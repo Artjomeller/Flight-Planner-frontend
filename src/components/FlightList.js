@@ -7,42 +7,101 @@ const FlightList = ({ flights, onSelectFlight }) => {
         return date.toLocaleString();
     };
 
+    const formatTime = (dateTimeStr) => {
+        const date = new Date(dateTimeStr);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const formatDate = (dateTimeStr) => {
+        const date = new Date(dateTimeStr);
+        return date.toLocaleDateString();
+    };
+
+    const calculateDuration = (departure, arrival) => {
+        const deptTime = new Date(departure);
+        const arrTime = new Date(arrival);
+        const durationMs = arrTime - deptTime;
+
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        return `${hours}h ${minutes}m`;
+    };
+
     return (
         <div className="flight-list">
-            <h2>Available Flights</h2>
+            <h2 className="flight-list-title">
+                Available Flights
+            </h2>
+
             {flights.length === 0 ? (
-                <p>No flights found matching your criteria.</p>
+                <div className="no-flights">
+                    <div className="no-flights-icon"></div>
+                    <p>No flights found matching your criteria.</p>
+                </div>
             ) : (
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Flight</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Departure</th>
-                        <th>Arrival</th>
-                        <th>Price</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {flights.map(flight => (
-                        <tr key={flight.id}>
-                            <td>{flight.flightNumber}</td>
-                            <td>{flight.origin}</td>
-                            <td>{flight.destination}</td>
-                            <td>{formatDateTime(flight.departureTime)}</td>
-                            <td>{formatDateTime(flight.arrivalTime)}</td>
-                            <td>€{flight.price.toFixed(2)}</td>
-                            <td>
-                                <button onClick={() => onSelectFlight(flight)}>
-                                    Select
-                                </button>
-                            </td>
+                <div className="flight-table-container">
+                    <table className="flight-table">
+                        <thead>
+                        <tr>
+                            <th className="flight-number-header">
+                                <span className="header-icon flight-number-icon"></span>
+                                Flight
+                            </th>
+                            <th className="origin-header">
+                                <span className="header-icon origin-icon"></span>
+                                Origin
+                            </th>
+                            <th className="destination-header">
+                                <span className="header-icon destination-icon"></span>
+                                Destination
+                            </th>
+                            <th className="departure-header">
+                                <span className="header-icon departure-icon"></span>
+                                Departure
+                            </th>
+                            <th className="arrival-header">
+                                <span className="header-icon arrival-icon"></span>
+                                Arrival
+                            </th>
+                            <th className="price-header">
+                                <span className="header-icon price-icon"></span>
+                                Price
+                            </th>
+                            <th className="action-header"></th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {flights.map(flight => (
+                            <tr key={flight.id} className="flight-row">
+                                <td className="flight-number">
+                                    <span className="flight-code">{flight.flightNumber}</span>
+                                </td>
+                                <td className="origin">
+                                    {flight.origin}
+                                </td>
+                                <td className="destination">
+                                    {flight.destination}
+                                </td>
+                                <td className="departure-time">
+                                    {formatDateTime(flight.departureTime)}
+                                </td>
+                                <td className="arrival-time">
+                                    {formatDateTime(flight.arrivalTime)}
+                                </td>
+                                <td className="price">
+                                    <span className="price-amount">€{flight.price.toFixed(2)}</span>
+                                </td>
+                                <td className="action">
+                                    <button className="select-button" onClick={() => onSelectFlight(flight)}>
+                                        Select
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
