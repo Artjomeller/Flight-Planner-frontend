@@ -20,13 +20,13 @@ To download the project to your computer, follow these steps:
    git clone https://github.com/Artjomeller/Flight-Planner-frontend.git
 
 ## Navigate into the project directory:
-    cd Flight-Planner-frontend
+    `cd Flight-Planner-frontend`
 
 ## Installing Dependencies
-    npm install
+    `npm install`
 
 ## Running the Application
-    npm start
+    `npm start`
 
 This will run the application in development mode. Open http://localhost:3000 in a web browser to view the app. The page will reload automatically when you make code changes.
 
