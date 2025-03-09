@@ -1,6 +1,11 @@
 # Flight Planner Frontend
 
 This project is the user interface for a flight planner application, allowing users to browse, search, filter flights, and manage seat arrangements.
+![Kuvatõmmis 1](images/flights-filter.png)
+
+
+![Kuvatõmmis 2](images/Seatpreferences-map.png)
+
 
 ## Prerequisites
 
