@@ -22,7 +22,7 @@ To download the project to your computer, follow these steps:
 1. Open your terminal (or command prompt on Windows).
 2. Navigate to the directory where you want to download the project.
 3. Clone the repository:
-   git clone https://github.com/Artjomeller/Flight-Planner-frontend.git
+   `git clone https://github.com/Artjomeller/Flight-Planner-frontend.git`
 
 ## Navigate into the project directory:
     `cd Flight-Planner-frontend`
